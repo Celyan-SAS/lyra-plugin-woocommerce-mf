@@ -2437,20 +2437,20 @@ class WC_Gateway_Lyra extends WC_Payment_Gateway
 
     public static function is_successful_action($lyra_response)
     {
-        if ($lyra_response->isAcceptedPayment() && $lyra_response->get('identifier') && (
-            $lyra_response->get('identifier_status') == 'CREATED' /* page_action is REGISTER_PAY or ASK_REGISTER_PAY */ ||
-            $lyra_response->get('identifier_status') == 'UPDATED' /* page_action is REGISTER_UPDATE_PAY */
-        )) {
-            return true;
-        }
-
-        if ($lyra_response->isAcceptedPayment() && ! $lyra_response->get('identifier')) {
+        if ($lyra_response->isAcceptedPayment()) {
             return true;
         }
 
         // This is a backward compatibility feature: it is used as a workarround as long as transcation
         // creation on REGISTER in not enabled on payment gateway.
         if ($lyra_response->get('subscription') && ($lyra_response->get('recurrence_status') === 'CREATED')) {
+            return true;
+        }
+
+        if (! $lyra_response->getExtInfo('is_rest') && $lyra_response->get('identifier') && (
+            $lyra_response->get('identifier_status') == 'CREATED' /* page_action is REGISTER_PAY or ASK_REGISTER_PAY */ ||
+            $lyra_response->get('identifier_status') == 'UPDATED' /* page_action is REGISTER_UPDATE_PAY */
+        )) {
             return true;
         }
 
